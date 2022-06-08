@@ -1,0 +1,418 @@
+---
+title: "Exploratory Data Analysis"
+author: "Data Science II (STAT 301-3)"
+name: "Josha Thomas & Jessica Hunter"
+date: "5/01/2022"
+output:
+  html_document:
+    code_folding: "hide"
+    toc: true
+    toc_float: true
+    highlight: "tango"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, results='hide',warning=FALSE, message=FALSE}
+library(tidyverse)
+library(tidymodels)
+library(naniar)
+library(janitor)
+library(patchwork)
+```
+
+# Intial Overview of Data 
+
+### Source of Data 
+
+<https://www.kaggle.com/datasets/kamilpytlak/personal-key-indicators-of-heart-disease?resource=download&select=heart_2020_cleaned.csv> Accessed 12 Apr. 2022.
+
+- The dataset highlights a 2020 survey conducted by the CDC of 400,000 adults related to their health status. It comprises 18 variables that are predictors of heart disease. The dataset consist of variables such as physical and mental health, demographic variables such as race, sex, and age, and heart disease indicators like BMI, smoking, diabetes, and asthma.
+
+```{r}
+heart_data <- read_csv("data/unprocessed/heart_2020_cleaned.csv") %>% 
+  clean_names()
+```
+
+
+# Number of observations, features, predictors, missigness
+
+
+- 319, 796 observations with 18 variables.
+
+## Predictors
+
+- Heart disease: Respondents that have ever reported having coronary heart disease (CHD) or myocardial infarction (MI)
+
+- BMI: Body Mass Index (BMI)
+
+- Smoking: Have you smoked at least 100 cigarettes in your entire life? 
+
+- Alcohol Drinking: YHeavy drinkers (adult men having more than 14 drinks per week and adult women having more than 7 drinks per week 
+
+- Stroke: (Ever told) (you had) a stroke?
+
+- Physical Health: Now thinking about your physical health, which includes physical illness and injury, for how many days during the past 30 was your physical health not good? 
+
+- Mental Health: Thinking about your mental health, for how many days during the past 30 days was your mental health not good?
+
+- DiffWalking (Do you have serious difficulty walking or climbing stairs?)
+
+- Sex: Are you male or female?
+
+- Age category: 50 - 80 or older
+
+- Race: White, Hispanic, Other, Black, Asian 
+
+- Diabetic: (Ever told) (you had) diabetes?
+
+- Physical activity: Adults who reported doing physical activity or exercise during the past 30 days other than their regular job
+
+- GenHealth: Would you say that in general your health is...
+
+- Sleep time: On average, how many hours of sleep do you get in a 24-hour period?
+
+-  Asthma: (Ever told) (you had) asthma?
+
+- Kidney disease: Not including kidney stones, bladder infection or incontinence, were you ever told you had kidney disease?
+
+- Skin cancer: (Ever told) (you had) skin cancer?
+
+## Missingness 
+
+  Missingness is not an issue for this dataset. 
+  
+```{r}
+heart_data%>% miss_var_summary()
+```
+```{r}
+heart_data %>% 
+  skimr::skim_without_charts()
+  
+```
+
+
+## Essential Findings 
+
+# Univariate investigation of response variable(s) and important predictor variable(s)
+
+- Diabetes, race and sex represent important predictor variables that affect one's relationship with heart disease. The following graphs explore these predictor variables. These findings inform how we will move forward with the data, for example it will be important to stratify the skewed variables. 
+
+```{r}
+heart_by_diabetes <- heart_data %>%
+  group_by(diabetic) %>%
+  count()
+
+ggplot(heart_by_diabetes, aes(x = diabetic, y = n))+
+  geom_bar(stat = "identity"
+           , color = "black"
+           , position = position_dodge()
+  ) +
+  theme_light()+
+  ggtitle("Heart Disease by Diabetes") +
+  labs(
+    x = "Race"
+    , y = "Count of Heart Disease"
+  ) +
+  theme(
+    plot.title = element_text(color = "black", hjust = 0.5
+                              , size = 15
+    )
+    , strip.text.x = element_text(face = "bold", color = "red", size=10)
+    , axis.title = element_text(color = "black", size=10)
+    , axis.text = element_text(color = "black", size = 8)
+    , legend.position =  "bottom"
+    , legend.text = element_text(color = "black")
+    , legend.title = element_text(color = "black") 
+  )
+```
+
+
+```{r}
+heart_by_race <- heart_data %>%
+  group_by(race) %>%
+  count()
+
+ggplot(heart_by_race, aes(x = race, y = n))+
+  geom_bar(stat = "identity"
+           , color = "black"
+           , position = position_dodge()
+  ) +
+  theme_light()+
+  ggtitle("Heart Disease by Race") +
+  labs(
+    x = "Race"
+    , y = "Count of Heart Disease"
+  ) +
+  theme(
+    plot.title = element_text(color = "black", hjust = 0.5
+                              , size = 15
+    )
+    , strip.text.x = element_text(face = "bold", color = "red", size=10)
+    , axis.title = element_text(color = "black", size=10)
+    , axis.text = element_text(color = "black", size = 8)
+    , legend.position =  "bottom"
+    , legend.text = element_text(color = "black")
+    , legend.title = element_text(color = "black") 
+  )
+```
+
+```{r}
+heart_by_sex <- heart_data %>%
+  group_by(sex) %>%
+  count() 
+
+ggplot(heart_by_sex, aes(x = sex, y = n)) +
+  geom_bar(stat = "identity"
+           , color = "black"
+           , position = position_dodge()) +
+  ggtitle("Heart Disease by Sex") +
+  labs(
+    x = "Sex"
+    , y = "Heart Disease Count") +
+  theme_light() +
+  theme(
+    plot.title = element_text(color = "black", hjust = 0.5
+                              , size = 15)
+    , axis.title = element_text(color = "black", size=10)
+    , axis.text = element_text(color = "black", size = 8))
+```
+
+# Interesting/important relationships among predictor variables.
+
+- The correlation plot below highlights how the relationship between the numeric predictor variables. Most prevalent was the strong correlation between physical and mental health. This could be intresting for future use because it helps to understand which predictors may be strongest in predicting if heart disease is present. 
+
+```{r}
+heart_data <- heart_data %>% 
+  mutate(
+    heart_disease = factor(heart_disease), 
+    smoking = factor(smoking), 
+    alcohol_drinking = factor(alcohol_drinking), 
+    stroke = factor(stroke),
+    race = factor(race), 
+    sex = factor(sex), 
+    diabetic = factor(diabetic),  
+    physical_activity = factor(physical_activity), 
+    gen_health = factor(gen_health), 
+    asthma = factor(asthma), 
+    kidney_disease = factor(kidney_disease), 
+    skin_cancer = factor(skin_cancer), 
+    diff_walking = factor(diff_walking), 
+    age_category = factor(age_category), 
+    mental_health = as.numeric(mental_health), 
+    physical_health = as.numeric(physical_health)
+    )
+
+heart_data_corr_plot <- heart_data %>% 
+  select(-c(heart_disease, asthma, smoking, alcohol_drinking, stroke, race, sex, diabetic, physical_activity, gen_health, kidney_disease, skin_cancer, diff_walking, age_category))
+```
+
+```{r}
+heart_data_matrix<- as.matrix(heart_data_corr_plot)
+
+heart_data_cor<- cor(heart_data_matrix)
+
+correlation_plot <- corrplot::corrplot(corr = heart_data_cor, is.corr = FALSE)
+```
+
+
+# Interesting/important relationships between response variable(s) and predictor variables.
+
+- The following graphs depict the distribution of people who have strokes, kidney disease, and skin cancer. The dataset highlights those who have heart disease are likely to also have other medical issues. 
+
+```{r}
+
+kidney_plot <- ggplot(heart_data, aes(heart_disease))+
+  geom_bar(
+    aes(fill = kidney_disease)
+    , position = "fill"
+    , alpha = 0.7
+    , color = "Black") +
+  scale_fill_discrete(
+    name = NULL
+    , labels = c("No", "Yes")
+  ) +
+  ggtitle("Heart Disease by Kidney Disease") +
+  labs(
+    x = "Kidney Disease"
+    , y = "Porportion of Heart Disease"
+  ) +
+  theme_minimal()
+
+
+skin_cancer <- ggplot(heart_data, aes(heart_disease))+
+  geom_bar(
+    aes(fill = skin_cancer)
+    , position = "fill"
+    , alpha = 0.7
+    , color = "Black") +
+  scale_fill_discrete(
+    name = NULL
+    , labels = c("No", "Yes")
+  ) +
+  ggtitle("Heart Disease by Skin Cancer") +
+  labs(
+    x = "Skin Cancer"
+    , y = "Porportion of Heart Disease"
+  ) +
+  theme_minimal()
+
+
+stroke_plot <- ggplot(heart_data, aes(heart_disease))+
+  geom_bar(
+    aes(fill = stroke)
+    , position = "fill"
+    , alpha = 0.7
+    , color = "Black") +
+  scale_fill_discrete(
+    name = NULL
+    , labels = c("No", "Yes")
+  ) +
+  ggtitle("Heart Disease by Stroke") +
+  labs(
+    x = "Stroke"
+    , y = "Porportion of Heart Disease"
+  ) +
+  theme_minimal()
+
+
+stroke_plot + skin_cancer/ kidney_plot
+
+```
+
+# Secondary Findings 
+
+### Findings that don't seem interesting or important, but show some potential. 
+
+```{r}
+ggplot(heart_data, aes(race))+
+  geom_bar(
+    aes(fill = sex)
+    , position = "fill"
+    , alpha = 0.7
+    , color = "Black") +
+  scale_fill_discrete(
+    name = NULL
+    , labels = c("Female", "Male")
+  ) +
+  ggtitle("Heart Disease by Sex and Race") +
+  labs(
+    x = "Race"
+    , y = "Percentage of Arrests"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(color = "black", hjust = 0.5
+                              , size = 15
+    )
+    , strip.text.x = element_text(face = "bold", color = "red", size=10)
+    , axis.title = element_text(color = "black", size=10)
+    , axis.text = element_text(color = "black", size = 8)
+    , legend.position =  "bottom"
+    , legend.text = element_text(color = "black")
+    , legend.title = element_text(color = "black") 
+  )
+
+```
+
+<<<<<<< HEAD
+### Github Repo Link
+
+https://github.com/STAT301III/final-project-final-project-j-j
+=======
+<<<<<<< HEAD:EDA.Rmd
+```{r}
+heart_data <- heart_data %>% 
+  mutate(
+    heart_disease = factor(heart_disease), 
+    smoking = factor(smoking), 
+    alcohol_drinking = factor(alcohol_drinking), 
+    stroke = factor(stroke),
+    race = factor(race), 
+    sex = factor(sex), 
+    diabetic = factor(diabetic),  
+    physical_activity = factor(physical_activity), 
+    gen_health = factor(gen_health), 
+    asthma = factor(asthma), 
+    kidney_disease = factor(kidney_disease), 
+    skin_cancer = factor(skin_cancer), 
+    diff_walking = factor(diff_walking), 
+    age_category = factor(age_category), 
+    mental_health = as.numeric(mental_health), 
+    physical_health = as.numeric(physical_health)
+    )
+
+heart_data_corr_plot <- heart_data %>% 
+  select(-c(heart_disease, asthma, smoking, alcohol_drinking, stroke, race, sex, diabetic, physical_activity, gen_health, kidney_disease, skin_cancer, diff_walking, age_category))
+
+
+# %>% 
+  # fastDummies::dummy_cols(remove_selected_columns = TRUE, remove_first_dummy = TRUE) 
+
+heart_data_matrix<- as.matrix(heart_data_corr_plot)
+
+heart_data_cor<- cor(heart_data_matrix)
+
+correlation_plot <- corrplot::corrplot(corr = heart_data_cor, is.corr = FALSE)
+
+
+corrplot::corrplot(corr = test_cor, is.corr = FALSE)
+```
+
+```{r}
+heart_data <- heart_data %>% 
+  mutate(
+    heart_disease = factor(heart_disease), 
+    smoking = factor(smoking), 
+    alcohol_drinking = factor(alcohol_drinking), 
+    stroke = factor(stroke),
+    race = factor(race), 
+    sex = factor(sex), 
+    diabetic = factor(diabetic),  
+    physical_activity = factor(physical_activity), 
+    gen_health = factor(gen_health), 
+    asthma = factor(asthma), 
+    kidney_disease = factor(kidney_disease), 
+    skin_cancer = factor(skin_cancer), 
+    diff_walking = factor(diff_walking), 
+    age_category = factor(age_category), 
+    mental_health = as.numeric(mental_health), 
+    physical_health = as.numeric(physical_health)
+    )
+
+<<<<<<< HEAD
+
+# Secondary Findings 
+=======
+heart_data_corr_plot <- heart_data %>% 
+  select(-c(heart_disease, asthma, smoking, alcohol_drinking, stroke, race, sex, diabetic, physical_activity, gen_health, kidney_disease, skin_cancer, diff_walking, age_category))
+```
+
+```{r}
+heart_data_matrix<- as.matrix(heart_data_corr_plot)
+
+heart_data_cor<- cor(heart_data_matrix)
+
+correlation_plot <- corrplot::corrplot(corr = heart_data_cor, is.corr = FALSE)
+
+
+corrplot::corrplot(corr = test_cor, is.corr = FALSE)
+```
+
+# Secondary Findings 
+
+### Standard variable explorations for the domain area that are unsurprising and mainly conducted out of convention. 
+
+### Findings that don't seem interesting or important, but show some potential. 
+=======
+## [GITHUB URL](https://github.com/STAT301III/final-project-final-project-j-j){target="_blank"}
+>>>>>>> 0d183d38e3073149c803d81e84430ffaa4b89ca0:Hunter_Thomas_EDA.Rmd
+>>>>>>> 0bc5a5247d3120184c3cfd1b6982bebba8d8452b
+
+## Citations
+
+
+JESSE A. BERLIN, GRAHAM A. COLDITZ, A META-ANALYSIS OF PHYSICAL ACTIVITY IN THE PREVENTION OF CORONARY HEART DISEASE, American Journal of Epidemiology, Volume 132, Issue 4, October 1990, Pages 612–628, https://doi.org/10.1093/oxfordjournals.aje.a115704
+>>>>>>> a3537d5f4e72f66b721a0570b43b3fcbff4cdadd

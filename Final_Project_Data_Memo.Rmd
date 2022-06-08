@@ -1,0 +1,173 @@
+---
+title: "Data Science Final Project Memo"
+author: "Josha Thomas & Jessica Hunter"
+date: "4/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE, include=FALSE}
+
+library(tidyverse)
+library(tidymodels)
+library(janitor)
+
+```
+
+## Proposed project timeline:
+
+<br>
+
+#### When do you expect to have your dataset loaded into R?
+
+The datasets have been loaded.
+
+
+```{r, Load Data, results='hide', message=FALSE}
+heart_data <- read_csv("data/unprocessed/heart_2020_cleaned.csv") %>% 
+  clean_names()
+
+```
+
+#### When do you expect to start your analysis?
+
+In the next two weeks.
+
+<br>
+
+## Simple overview of the dataset.
+
+<br>
+
+#### What does the dataset document?
+
+<br>
+
+The dataset highlights a 2020 survey conducted by the CDC of 400,000 adults related to their health status. It comprises 18 variables that are predictors of heart disease. The dataset consist of variables such as physical and mental health, demographic variables such as race, sex, and age, and heart disease indicators like BMI, smoking, diabetes, and asthma. 
+
+
+#### Why are we intrested in this dataset? 
+
+Our group is interested in exploring heart disease because it is a leading cause of death in the U.S across demographic groups. Importantly, it disproportionately affects African Americans and African Americans are more likely to suffer from predictors of heart disease like diabetes, asthma, and high BMI. We are interested in exploring what predictors determine the likelihood heart disease will occur in Americans. 
+
+<br>
+
+#### How do you plan to collect it? (Is it a simple download, a webscrape, etc? Provide a citation.)
+
+Downloaded the dataset online through Kaggle as a csv file.
+
+Citation:
+
+*Heart Rate Prediction to Monitor Stress Level*. <https://www.kaggle.com/datasets/kamilpytlak/personal-key-indicators-of-heart-disease?resource=download&select=heart_2020_cleaned.csv> Accessed 12 Apr. 2022.
+
+<br>
+
+#### How big is the dataset?
+
+319796 observations with 18 variables.
+
+<br>
+
+#### What kinds of variables will you be dealing with?
+
+This is a composite list of the variables included in the dataset. Most of the variables are binary variables where the respondent responded with a yes or no to the questions. 
+
+<br>
+
+- Heart disease: Respondents that have ever reported having coronary heart disease (CHD) or myocardial infarction (MI)
+
+- BMI: Body Mass Index (BMI)
+
+- Smoking: Have you smoked at least 100 cigarettes in your entire life? 
+
+- Alcohol Drinking: YHeavy drinkers (adult men having more than 14 drinks per week and adult women having more than 7 drinks per week 
+
+- Stroke: (Ever told) (you had) a stroke?
+
+- Physical Health: Now thinking about your physical health, which includes physical illness and injury, for how many days during the past 30 was your physical health not good? 
+
+- Mental Health: Thinking about your mental health, for how many days during the past 30 days was your mental health not good?
+
+- DiffWalking (Do you have serious difficulty walking or climbing stairs?)
+
+- Sex: Are you male or female?
+
+- Age category: 50 - 80 or older
+
+- Race: White, Hispanic, Other, Black, Asian 
+
+- Diabetic: (Ever told) (you had) diabetes?
+
+- Physical activity: Adults who reported doing physical activity or exercise during the past 30 days other than their regular job
+
+- GenHealth: Would you say that in general your health is...
+
+- Sleep time: On average, how many hours of sleep do you get in a 24-hour period?
+
+-  Asthma: (Ever told) (you had) asthma?
+
+- Kidney disease: Not including kidney stones, bladder infection or incontinence, were you ever told you had kidney disease?
+
+- Skin cancer: (Ever told) (you had) skin cancer?
+
+<br><br>
+
+#### Any missingness?
+
+There are no missing variables in our datasets.
+
+```{r}
+naniar::miss_var_summary(heart_data)
+```
+
+<br>
+
+#### Do you need to join two or more sources of data together?
+
+No, we will not have to join any datasets. 
+
+<br>
+
+### Description of potential research questions.
+
+**Which predictors accurately predict the presence of heart disease?** 
+
+**How does feature engineering affect the accuracy of predicting the response given a set of predictors?**
+
+<br>
+
+#### Are they predictive or inferential? (Should be predictive questions!)
+
+Our questions are predictive in nature.
+
+<br>
+
+#### Are these questions best answered by a classification or regression-based approach?
+
+Our questions are best answered by a classification approach. 
+
+<br>
+
+**What is the response variable? Which variables do you suspect will be useful in modeling the response?**
+
+Our response variable is presence of heart disease. Predictors that may be useful in predicting the presence of heart disease is BMI, race, smoking, and age. 
+
+<br>
+
+### Any difficulties you may encounter along the way:
+
+- Possibly working with binary variables for this classification problem. 
+
+Is the data collection mechanism complicated? Is there significant missingness in the data?
+
+- No there are no difficulties to the data collection or missingness. 
+
+<br>
+
+# GITHUB: 
+
+https://github.com/STAT301III/final-project-final-project-j-j
+
