@@ -1,0 +1,4 @@
+C:/Users/Gabby[[:space:]]Thom/Downloads/Data[[:space:]]Science-3[[:space:]](Spring[[:space:]]2022)/final_project_test/model_info/elastic_net.rda filter=lfs diff=lfs merge=lfs -text
+C:/Users/Gabby[[:space:]]Thom/Downloads/Data[[:space:]]Science-3[[:space:]](Spring[[:space:]]2022)/final_project_test/model_info/elastic_net_no_interact.rda filter=lfs diff=lfs merge=lfs -text
+C:/Users/Gabby[[:space:]]Thom/Downloads/Data[[:space:]]Science-3[[:space:]](Spring[[:space:]]2022)/final_project_test/model_info/mars_earth.rda filter=lfs diff=lfs merge=lfs -text
+C:/Users/Gabby[[:space:]]Thom/Downloads/Data[[:space:]]Science-3[[:space:]](Spring[[:space:]]2022)/final_project_test/model_info/mars_earth_no_interact.rda filter=lfs diff=lfs merge=lfs -text
